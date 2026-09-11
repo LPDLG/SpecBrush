@@ -1,0 +1,82 @@
+name: specbrush-stage2-inference
+suffix: null
+model: denoising
+distortion: inpainting
+gpu_ids: [0]
+
+# Use 200 reverse sampling steps with the same IR-SDE schedule used in training.
+sde:
+  max_sigma: 30
+  T: 200
+  schedule: cosine
+  eps: 0.005
+
+datasets:
+  test:
+    name: MuralVerse-S
+    mode: mural_inference
+    dataroot_degraded: <PATH_TO_TEST_DEGRADED>
+    dataroot_mask: <PATH_TO_TEST_MASKS>
+    # Deployment inference is RGB-only and never needs GT. Set a GT directory
+    # only in a separate evaluation run if metrics are required.
+    dataroot_GT: null
+    dataroot_color_prior: null
+    dataroot_confidence: null
+    lut_path: <PATH_TO_STAGE1_LUT>
+    lut_alpha: 0.85
+    lut_beta: 0.15
+    lut_inpaint_method: telea
+    prior_method: quality
+    prior_inpaint_mask_dilate: 3
+    refine_mask_from_observed_white: false
+
+network_G:
+  which_model_G: ConditionalUNetWithPriorControl
+  setting:
+    in_nc: 3
+    out_nc: 3
+    nf: 64
+    depth: 4
+
+# Frozen StrDiffusion structure branch retained from the original backbone.
+network_Gs:
+  which_model_G: ConditionalUNets
+  setting:
+    in_nc: 1
+    out_nc: 1
+    nf: 64
+    depth: 4
+
+prior_controlnet:
+  enabled: true
+  gate_hidden: 16
+
+mglc:
+  enabled: true
+  branch_mode: both
+  gate_hidden: 16
+  boundary_width: 3
+  lambda_b: 1.0
+
+mu_cleaner:
+  enabled: true
+  dim: 24
+  num_blocks: 2
+  num_heads: 4
+  boundary_width: 3
+
+restore_S_guidance: true
+restore_S_guidance_scale: 1.0
+
+path:
+  pretrain_model_G: <PATH_TO_SPECBRUSH_STAGE2_CHECKPOINT>
+  pretrain_model_Gs: <PATH_TO_PRETRAINED_STRDIFFUSION_STRUCTURE>
+  pretrain_model_D: null
+  strict_load: false
+  resume_state: null
+
+inference:
+  sampling_steps: 200
+  preserve_known_pixels: true
+  save_intermediates: false
+

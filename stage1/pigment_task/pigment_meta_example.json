@@ -1,0 +1,27 @@
+{
+  "raman_len": 1024,
+  "xrd_len": 2048,
+  "patch_to_raman_sheet": {
+    "1": "66 密陀僧",
+    "2": "66 铅丹+密陀僧",
+    "3": "66 铅丹+朱砂+铁红",
+    "4": "66 铅丹+朱砂",
+    "5": "66 铅丹+铁红",
+    "6": "66 铅丹+铅白",
+    "7": "66 铅丹",
+    "8": "66 铅白+密陀僧",
+    "9": "66 铅白"
+  },
+  "patch_to_xrd_sheet": {
+    "1": "66 密陀僧",
+    "2": "66 铅丹+密陀僧",
+    "3": "66 铅丹+朱砂+铁红",
+    "4": "66 铅丹+朱砂",
+    "5": "66 铅丹+铁红",
+    "6": "66 铅丹+铅白",
+    "7": "66 铅丹",
+    "8": "66 铅白+密陀僧",
+    "9": "66 铅白"
+  },
+  "note": "If your patch numbering differs, update the mappings. The preprocess script will auto-adapt 66->76 for the second humidity experiment."
+}

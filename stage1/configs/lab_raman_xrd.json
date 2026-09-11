@@ -1,0 +1,69 @@
+﻿{
+  "data": {
+    "train_npz": "data/pigment_npz/train.npz",
+    "val_npz": "data/pigment_npz/val.npz",
+    "test_npz": "data/pigment_npz/test.npz",
+    "train_index": "data/pigment_npz/train_index.csv",
+    "val_index": "data/pigment_npz/val_index.csv",
+    "test_index": "data/pigment_npz/test_index.csv"
+  },
+  "modality": {
+    "use_raman": true,
+    "use_xrd": true,
+    "raman_len": 1024,
+    "xrd_len": 2048,
+    "spec_d_model": 128,
+    "spec_n_layers": 4,
+    "spec_dropout": 0.0,
+    "raman_peak_dim": 0,
+    "xrd_peak_dim": 0,
+    "material_dim": 128
+  },
+  "color_encoder": {
+    "d_model": 128,
+    "hidden_dim": 256,
+    "n_layers": 2,
+    "dropout": 0.0
+  },
+  "missing_modality": {
+    "enable": true,
+    "p_full": 0.7,
+    "lambda_align": 0.1,
+    "hidden_dim": 256,
+    "n_layers": 2,
+    "dropout": 0.0
+  },
+  "model": {
+    "in_channels": 3,
+    "hidden_dim": 128,
+    "n_layers": 4,
+    "dropout": 0.0
+  },
+  "diffusion": {
+    "T": 200,
+    "beta_0": 0.0001,
+    "beta_T": 0.02
+  },
+  "train": {
+    "device": "cuda",
+    "seed": 42,
+    "batch_size": 64,
+    "eval_batch_size": 64,
+    "epochs": 300,
+    "lr": 0.0001,
+    "weight_decay": 0.0,
+    "grad_clip": 1.0,
+    "num_workers": 0,
+    "log_every": 50,
+    "eval_every": 1,
+    "save_every": 20,
+    "save_dir": "ckpt/lab_raman_xrd"
+  },
+  "inference": {
+    "condition": "rgb_only",
+    "num_samples": 20,
+    "use_kalman_rts_for_ordered_aging_sequences": true,
+    "kalman_process_std_lab": 2.0,
+    "kalman_measurement_floor_lab": 1.0
+  }
+}

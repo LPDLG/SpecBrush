@@ -1,0 +1,111 @@
+name: specbrush-stage2
+use_tb_logger: true
+model: denoising
+distortion: inpainting
+gpu_ids: [0]
+
+# IR-SDE uses sigma_max=30, cosine schedule, and 200 steps for training/inference.
+sde:
+  max_sigma: 30
+  T: 200
+  schedule: cosine
+  eps: 0.005
+
+degradation:
+  mask_root: <PATH_TO_TRAIN_MASKS>
+
+# Eqs. (8)-(10): MP-Encoder + multi-scale zero-initialized prior branch +
+# confidence-calibrated residual injection. The confidence gate is intrinsic
+# to the implementation and is not an optional release switch.
+prior_controlnet:
+  enabled: true
+  gate_hidden: 16
+
+# Eqs. (12)-(15): MGLC is applied at every prior-injected scale.
+mglc:
+  enabled: true
+  branch_mode: both
+  gate_hidden: 16
+  boundary_width: 3
+  lambda_b: 1.0
+
+# Eq. (11): MuCleaner is part of the Stage-II diffusion graph and receives no
+# auxiliary self-supervised/perceptual/edge/structure loss.
+mu_cleaner:
+  enabled: true
+  dim: 24
+  num_blocks: 2
+  num_heads: 4
+  boundary_width: 3
+
+# Preserve the original frozen StrDiffusion structure path.
+restore_S_guidance: true
+restore_S_guidance_scale: 1.0
+
+datasets:
+  train:
+    name: MuralPairedInpainting_Dataset
+    mode: mural_paired_inpainting
+    dataroot_GT: <PATH_TO_TRAIN_GT>
+    dataroot_degraded: <PATH_TO_TRAIN_DEGRADED>
+    dataroot_mask: <PATH_TO_TRAIN_MASKS>
+    gt_mode: paired_true
+    lut_path: <PATH_TO_STAGE1_LUT>
+    lut_alpha: 0.85
+    lut_beta: 0.15
+    lut_inpaint_method: telea
+    prior_method: quality
+    prior_inpaint_mask_dilate: 3
+    refine_mask_from_observed_white: false
+    use_shuffle: true
+    n_workers: 8
+    batch_size: 8
+    GT_size: 256
+    min_hole_ratio: 0.005
+    max_hole_ratio: 0.80
+    max_crop_retry: 20
+    use_flip: false
+    use_rot: false
+    color: RGB
+
+network_G:
+  which_model_G: ConditionalUNetWithPriorControl
+  setting:
+    in_nc: 3
+    out_nc: 3
+    nf: 64
+    depth: 4
+
+path:
+  # Official pretrained StrDiffusion texture checkpoint. It is loaded into the
+  # trunk and then frozen for all 200k Stage-II iterations.
+  pretrain_model_G: <PATH_TO_PRETRAINED_STRDIFFUSION_G>
+  expected_pretrain_model_G: <PATH_TO_PRETRAINED_STRDIFFUSION_G>
+  strict_load: false
+  resume_state: null
+
+train:
+  optimizer: Adam
+  # Stage-II optimizer uses Adam; the control-module learning rate is configured below.
+  # This release keeps the control-module LR explicit for reproducibility.
+  lr_new: !!float 1e-6
+  beta1: 0.9
+  beta2: 0.99
+  weight_decay: 0.0
+  lr_scheme: MultiStepLR
+  lr_steps: [100000, 150000]
+  lr_gamma: 0.5
+  niter: 200000
+  warmup_iter: -1
+  manual_seed: 0
+  freeze_backbone: true
+  grad_clip: 1.0
+
+logger:
+  print_freq: 100
+  save_checkpoint_freq: 10000
+  best_save_start_iter: 10000
+  use_tb_logger: true
+
+
+

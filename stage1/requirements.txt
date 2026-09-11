@@ -1,0 +1,6 @@
+torch
+numpy
+pandas
+scipy
+mamba-ssm==2.2.2
+openpyxl

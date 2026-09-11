@@ -16,4 +16,4 @@ The experimental data used in this project include MuralVerse-S, CanvasCLP, and 
 
 ## code
 
-We will upload the training code, testing code, pretrained models, and full dataset at an appropriate time.
+The Stage I and Stage II training/inference code is available in `stage1/` and `stage2/`. See [README_CODE.md](README_CODE.md) for the code structure, configuration, and main commands.
